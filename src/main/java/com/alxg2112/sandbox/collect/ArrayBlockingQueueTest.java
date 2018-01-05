@@ -40,7 +40,7 @@ public class ArrayBlockingQueueTest {
 			}
 		};
 		Runnable consumer = () -> {
-			while (leftToConsume.decrementAndGet() > 0) {
+			while (leftToConsume.decrementAndGet() >= 0) {
 				Long element;
 				try {
 					element = queue.take();
@@ -65,8 +65,9 @@ public class ArrayBlockingQueueTest {
 		for (Future<?> future : allFutures) {
 			future.get();
 		}
-		System.out.printf("Time elapsed to produce and consume 1,000,000 elements is %s millis%n" +
-				"====================================================================%n%n",
+		System.out.printf("Time elapsed to produce and consume %s elements is %s millis%n" +
+						"====================================================================%n%n",
+				elementsPerProducer * numberOfProducers,
 				(System.currentTimeMillis() - start));
 	}
 }

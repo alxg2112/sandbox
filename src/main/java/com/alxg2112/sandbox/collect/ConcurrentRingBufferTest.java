@@ -43,7 +43,7 @@ public class ConcurrentRingBufferTest {
 			}
 		};
 		Runnable consumer = () -> {
-			while (leftToConsume.decrementAndGet() > 0) {
+			while (leftToConsume.decrementAndGet() >= 0) {
 				Long element;
 				try {
 					element = buffer.take();
@@ -68,8 +68,9 @@ public class ConcurrentRingBufferTest {
 		for (Future<?> future : allFutures) {
 			future.get();
 		}
-		System.out.printf("Time elapsed to produce and consume 1,000,000 elements is %s millis%n" +
+		System.out.printf("Time elapsed to produce and consume %s elements is %s millis%n" +
 						"======================================================================%n%n",
+				elementsPerProducer * numberOfProducers,
 				(System.currentTimeMillis() - start));
 	}
 }
