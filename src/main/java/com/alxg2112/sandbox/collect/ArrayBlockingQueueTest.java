@@ -2,10 +2,7 @@ package com.alxg2112.sandbox.collect;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
@@ -16,27 +13,27 @@ import com.google.common.base.Preconditions;
 /**
  * @author Alexander Gryshchenko
  */
-public class ConcurrentRingBufferTest {
+public class ArrayBlockingQueueTest {
 
 	public static void mpmcPerformanceTest(int numberOfProducers,
 										   int numberOfConsumers,
 										   int elementsPerProducer,
 										   int containerSize) throws ExecutionException, InterruptedException {
-		System.out.printf("====================[Testing ConcurrentRingBuffer]====================%n" +
+		System.out.printf("====================[Testing ArrayBlockingQueue]====================%n" +
 						"Consumers: %s%n" +
 						"Producers: %s%n" +
 						"Elements per producer: %s%n" +
-						"Buffer size: %s%n%n",
+						"Array size: %s%n%n",
 				numberOfConsumers, numberOfProducers, elementsPerProducer, containerSize);
 		AtomicLong counter = new AtomicLong(0);
 		AtomicInteger leftToConsume = new AtomicInteger(elementsPerProducer * numberOfProducers);
 		ExecutorService executorService = Executors.newFixedThreadPool(numberOfProducers + numberOfConsumers);
-		ConcurrentRingBuffer<Long> buffer = new ConcurrentRingBuffer<>(containerSize);
+		BlockingQueue<Long> queue = new ArrayBlockingQueue<>(containerSize);
 		Runnable producer = () -> {
 			for (int i = 0; i < elementsPerProducer; i++) {
 				long newElement = counter.getAndIncrement();
 				try {
-					buffer.put(newElement);
+					queue.put(newElement);
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}
@@ -46,7 +43,7 @@ public class ConcurrentRingBufferTest {
 			while (leftToConsume.decrementAndGet() > 0) {
 				Long element;
 				try {
-					element = buffer.take();
+					element = queue.take();
 				} catch (InterruptedException e) {
 					throw new RuntimeException(e);
 				}
@@ -69,7 +66,7 @@ public class ConcurrentRingBufferTest {
 			future.get();
 		}
 		System.out.printf("Time elapsed to produce and consume 1,000,000 elements is %s millis%n" +
-						"======================================================================%n%n",
+				"====================================================================%n%n",
 				(System.currentTimeMillis() - start));
 	}
 }
