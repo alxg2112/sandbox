@@ -1,6 +1,5 @@
 package com.alxg2112.sandbox.collect;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -12,13 +11,14 @@ public class ConcurrentRingBuffer<E> {
 
 	private final int bufferSize;
 	private final E[] buffer;
-	private final AtomicInteger elementCount = new AtomicInteger(0);
-	private final AtomicInteger writePos = new AtomicInteger(0);
-	private final AtomicInteger readPos = new AtomicInteger(0);
 
 	private final Lock lock = new ReentrantLock();
 	private final Condition notEmpty = lock.newCondition();
 	private final Condition notFull = lock.newCondition();
+
+	private int elementCount;
+	private int writePos;
+	private int readPos;
 
 	public ConcurrentRingBuffer(int bufferSize) {
 		this.bufferSize = bufferSize;
@@ -28,11 +28,12 @@ public class ConcurrentRingBuffer<E> {
 	public void put(E element) throws InterruptedException {
 		lock.lock();
 		try {
-			while (elementCount.get() == bufferSize) {
+			while (elementCount == bufferSize) {
 				notFull.await();
 			}
-			buffer[writePos.getAndUpdate(x -> ++x % bufferSize)] = element;
-			elementCount.incrementAndGet();
+			buffer[writePos] = element;
+			writePos = ++writePos % bufferSize;
+			elementCount++;
 			notEmpty.signal();
 		} finally {
 			lock.unlock();
@@ -43,13 +44,13 @@ public class ConcurrentRingBuffer<E> {
 	public E take() throws InterruptedException {
 		lock.lock();
 		try {
-			while (elementCount.get() == 0) {
+			while (elementCount == 0) {
 				notEmpty.await();
 			}
-			int pos = readPos.getAndUpdate(x -> ++x % bufferSize);
-			E element = buffer[pos];
-			buffer[pos] = null;
-			elementCount.decrementAndGet();
+			E element = buffer[readPos];
+			buffer[readPos] = null;
+			readPos = ++readPos % bufferSize;
+			elementCount--;
 			notFull.signal();
 			return element;
 		} finally {
