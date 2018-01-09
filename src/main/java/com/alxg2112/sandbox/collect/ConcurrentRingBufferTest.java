@@ -11,8 +11,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import com.google.common.base.Preconditions;
-
 /**
  * @author Alexander Gryshchenko
  */
@@ -38,19 +36,17 @@ public class ConcurrentRingBufferTest {
 				try {
 					buffer.put(newElement);
 				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
+					e.printStackTrace();
 				}
 			}
 		};
 		Runnable consumer = () -> {
 			while (leftToConsume.decrementAndGet() >= 0) {
-				Long element;
 				try {
-					element = buffer.take();
+					buffer.take();
 				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
+					e.printStackTrace();
 				}
-				Preconditions.checkNotNull(element);
 			}
 		};
 		System.out.printf("Starting...%n%n");
