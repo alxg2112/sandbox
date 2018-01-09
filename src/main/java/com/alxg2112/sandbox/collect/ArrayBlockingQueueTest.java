@@ -17,7 +17,7 @@ public class ArrayBlockingQueueTest {
 										   int numberOfConsumers,
 										   int elementsPerProducer,
 										   int containerSize) throws ExecutionException, InterruptedException {
-		System.out.printf("====================[Testing ArrayBlockingQueue]====================%n" +
+		System.out.printf("=====================[Testing ArrayBlockingQueue]=====================%n" +
 						"Consumers: %s%n" +
 						"Producers: %s%n" +
 						"Elements per producer: %s%n" +
@@ -62,7 +62,7 @@ public class ArrayBlockingQueueTest {
 			future.get();
 		}
 		System.out.printf("Time elapsed to produce and consume %s elements is %s millis%n" +
-						"====================================================================%n%n",
+						"======================================================================%n%n",
 				elementsPerProducer * numberOfProducers,
 				(System.currentTimeMillis() - start));
 	}

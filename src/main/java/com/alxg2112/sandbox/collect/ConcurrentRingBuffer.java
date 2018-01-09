@@ -18,14 +18,13 @@ public class ConcurrentRingBuffer<E> {
 	}
 
 	public void put(E element) throws InterruptedException {
-		while (!buffer.compareAndSet(
-				writePos.getAndUpdate(x -> ++x % buffer.length()),
-				null,
-				element)) {
+		int pos;
+		do {
 			if (Thread.currentThread().isInterrupted()) {
 				throw new InterruptedException();
 			}
-		}
+			pos = writePos.getAndUpdate(x -> ++x % buffer.length());
+		} while (!buffer.compareAndSet(pos, null, element));
 	}
 
 	public E take() throws InterruptedException {
@@ -34,7 +33,8 @@ public class ConcurrentRingBuffer<E> {
 			if (Thread.currentThread().isInterrupted()) {
 				throw new InterruptedException();
 			}
-			element = buffer.getAndSet(readPos.getAndUpdate(x -> ++x % buffer.length()), null);
+			int pos = readPos.getAndUpdate(x -> ++x % buffer.length());
+			element = buffer.getAndSet(pos, null);
 		} while (element == null);
 		return element;
 	}
