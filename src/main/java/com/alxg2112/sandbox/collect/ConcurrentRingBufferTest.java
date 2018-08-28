@@ -20,7 +20,7 @@ public class ConcurrentRingBufferTest {
 										   int numberOfConsumers,
 										   int elementsPerProducer,
 										   int containerSize) throws ExecutionException, InterruptedException {
-		System.out.printf("====================[Testing ConcurrentRingBuffer]====================%n" +
+		System.out.printf("====================[Testing AtomicRingBuffer]====================%n" +
 						"Consumers: %s%n" +
 						"Producers: %s%n" +
 						"Elements per producer: %s%n" +
@@ -29,7 +29,7 @@ public class ConcurrentRingBufferTest {
 		AtomicLong counter = new AtomicLong(0);
 		AtomicInteger leftToConsume = new AtomicInteger(elementsPerProducer * numberOfProducers);
 		ExecutorService executorService = Executors.newFixedThreadPool(numberOfProducers + numberOfConsumers);
-		ConcurrentRingBuffer<Long> buffer = new ConcurrentRingBuffer<>(containerSize);
+		ConcurrentBuffer<Long> buffer = new AtomicRingBuffer<>(containerSize);
 		Runnable producer = () -> {
 			for (int i = 0; i < elementsPerProducer; i++) {
 				long newElement = counter.getAndIncrement();

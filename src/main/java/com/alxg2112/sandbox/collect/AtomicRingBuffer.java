@@ -3,21 +3,30 @@ package com.alxg2112.sandbox.collect;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
+import com.google.common.base.Preconditions;
+
 /**
+ * Lock-free exchange data structure, that provides decent performance-to-memory footprint
+ * ratio when the size of buffer is very small (e.g. 8, 16), excelling
+ * {@link java.util.concurrent.LinkedBlockingQueue} and
+ * {@link java.util.concurrent.ArrayBlockingQueue} in these cases.
+ *
  * @author Alexander Gryshchenko
  */
-public class ConcurrentRingBuffer<E> {
+public class AtomicRingBuffer<E> implements ConcurrentBuffer<E> {
 
 	private final AtomicReferenceArray<E> buffer;
 
 	private final AtomicInteger writePos = new AtomicInteger(0);
 	private final AtomicInteger readPos = new AtomicInteger(0);
 
-	public ConcurrentRingBuffer(int bufferSize) {
+	public AtomicRingBuffer(int bufferSize) {
 		this.buffer = new AtomicReferenceArray<>(bufferSize);
 	}
 
+	@Override
 	public void put(E element) throws InterruptedException {
+		Preconditions.checkNotNull(element, "null elements are not allowed");
 		int pos;
 		do {
 			if (Thread.currentThread().isInterrupted()) {
@@ -27,6 +36,7 @@ public class ConcurrentRingBuffer<E> {
 		} while (!buffer.compareAndSet(pos, null, element));
 	}
 
+	@Override
 	public E take() throws InterruptedException {
 		E element;
 		do {

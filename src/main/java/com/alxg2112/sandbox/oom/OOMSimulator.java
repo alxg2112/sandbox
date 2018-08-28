@@ -27,9 +27,8 @@ public class OOMSimulator {
 		};
 		IntStream.range(0, 4).forEach(num -> {
 			Thread thread = new Thread(heapEater);
-			thread.setDaemon(true);
+//			thread.setDaemon(true);
 			thread.start();
 		});
-		throw new RuntimeException();
 	}
 }

@@ -26,7 +26,7 @@ public class ArrayBlockingQueueTest {
 		AtomicLong counter = new AtomicLong(0);
 		AtomicInteger leftToConsume = new AtomicInteger(elementsPerProducer * numberOfProducers);
 		ExecutorService executorService = Executors.newFixedThreadPool(numberOfProducers + numberOfConsumers);
-		BlockingQueue<Long> queue = new ArrayBlockingQueue<>(containerSize);
+		BlockingQueue<Long> queue = new LinkedBlockingQueue<>(containerSize);
 		Runnable producer = () -> {
 			for (int i = 0; i < elementsPerProducer; i++) {
 				long newElement = counter.getAndIncrement();
